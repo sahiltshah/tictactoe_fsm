@@ -1,9 +1,16 @@
 #include <iostream>
 #include <set>
+#include <vector>
+#include <map>
 using namespace std;
 
 set<string> states;
+vector<string> valid_states;
+vector<vector<int> > move;
+set<pair<string,string> > edges;
+map<string,int> m;
 int rec_count=0;
+
 void print_state(string s)
 {
 
@@ -49,7 +56,8 @@ void recursive_add_states(string state,bool turn)
     //cout<<"\n we are at state: \n";
     //print_state(state);
     rec_count++;
-    if(game_status(state)=='~')
+    char c=game_status(state);
+    if(c=='~')
     {
         string temp;
         if(turn)
@@ -63,6 +71,7 @@ void recursive_add_states(string state,bool turn)
                         if(states.find(temp)==states.end())
                         {
                             states.insert(temp);
+                            edges.insert(pair<string,string>(state,temp));
                             recursive_add_states(temp,!turn);
                         }
                     }
@@ -78,11 +87,18 @@ void recursive_add_states(string state,bool turn)
                         if(states.find(temp)==states.end())
                         {
                             states.insert(temp);
+                            edges.insert(pair<string,string>(state,temp));
                             recursive_add_states(temp,!turn);
                         }
                     }
         }
     }
+    else
+        {
+            string oc="0";
+            oc[0]=c;
+            edges.insert(pair<string,string>(state,oc));
+        }
     
 }
 
@@ -92,9 +108,24 @@ int main()
     recursive_add_states(start,1);
     recursive_add_states(start,0);
     cout<<"Recursion count: "<<rec_count<<endl;
-    cout<<"\n\n\n\n post computation states size is: "<<states.size()<<endl;
-    for(set<string>::iterator i=states.begin();i!=states.end();++i)
-        cout<<(*i).substr(0,9)<<" "<<(*i)[9]<<"    "<<game_status(*i)<<endl;
+    cout<<"\n\n\n\n post computation states set size is: "<<states.size()<<endl;
+    cout<<" edges size is: "<<edges.size()<<endl;
+    int j=4;
+    //m.insert(pair<string,int>("x",0));
+    //m.insert(pair<string,int>("y",1));
+    //m.insert(pair<string,int>("d",2));
+    //m.insert(pair<string,int>("~",3));
+    
+    for(set<string>::iterator i=states.begin();i!=states.end();++i,j++)
+        {
+            //cout<<(*i).substr(0,9)<<" "<<(*i)[9]<<"    "<<game_status(*i)<<endl;
+            //valid_states.push_back(*i);
+            m.insert(pair<string,int>(*i,j));
+        }
+    for(set<pair<string,string> >::iterator it=edges.begin();it!=edges.end();it++)
+        cout<<m.find((*it).first)->second<<"    ->     "<<m.find((*it).second)->second<<endl;
+    
+    cout<<"\n valid states size is: "<<valid_states.size()<<endl;
     return 0;
 
 }
