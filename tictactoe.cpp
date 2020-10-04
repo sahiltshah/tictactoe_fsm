@@ -105,15 +105,18 @@ void recursive_add_states(string state,bool turn)
 int main()
 {
     string start="~~~~~~~~~";
+    
+    m.insert(pair<string,int>("x",1));
+    m.insert(pair<string,int>("0",2));
+    m.insert(pair<string,int>("d",3));
+    
     recursive_add_states(start,1);
     recursive_add_states(start,0);
     cout<<"Recursion count: "<<rec_count<<endl;
     cout<<"\n\n\n\n post computation states set size is: "<<states.size()<<endl;
     cout<<" edges size is: "<<edges.size()<<endl;
     int j=4;
-    //m.insert(pair<string,int>("x",0));
-    //m.insert(pair<string,int>("y",1));
-    //m.insert(pair<string,int>("d",2));
+    
     //m.insert(pair<string,int>("~",3));
     
     for(set<string>::iterator i=states.begin();i!=states.end();++i,j++)
@@ -123,8 +126,10 @@ int main()
             m.insert(pair<string,int>(*i,j));
         }
     for(set<pair<string,string> >::iterator it=edges.begin();it!=edges.end();it++)
-        cout<<m.find((*it).first)->second<<"    ->     "<<m.find((*it).second)->second<<endl;
-    
+        {
+            cout<<(*it).first.substr(0,9)<<"|"<<(*it).first[9]<<"    ->     "<<(*it).second.substr(0,9)<<"|"<<(*it).second[9]<<endl;
+            cout<<m.find((*it).first)->second<<"    ->     "<<m.find((*it).second)->second<<endl;
+        }
     cout<<"\n valid states size is: "<<valid_states.size()<<endl;
     return 0;
 
