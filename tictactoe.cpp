@@ -13,6 +13,7 @@ set<pair<string,string> > edges; //store all possible edges
 map<string,int> m;
 vector<vector<int> > graph; 
 int rec_count=0;
+int wx,w0,d;
 
 // printing of state
 void print_state(string s) 
@@ -192,6 +193,7 @@ int node_index(string state)
     return m.find(state)->second;
 }
 
+// function to verify if graph was created correctly
 void check_graph_size()
 {
     int total=0;
@@ -200,6 +202,7 @@ void check_graph_size()
     cout<<"the total size(number of edges) of the graph is: "<<total<<endl;
 }
 
+// build the graph completely
 void build_graph()
 {
     
@@ -208,11 +211,46 @@ void build_graph()
     check_graph_size();
 }
 
+void recursive_traverse(int node)
+{
+    if(node==1)
+        wx++;
+    else if(node==2)
+        w0++;
+    else if(node==3)
+        d++;
+    else
+    {
+        for(int i=0;i<graph[node].size();i++)
+            recursive_traverse(graph[node][i]);
+    }
+    
+        
+}
+
+void check_outcome(string start_state)
+{
+    int query=node_index(start_state);
+    wx=0;
+    w0=0;
+    d=0;
+    recursive_traverse(query);
+    cout<<"x winning chances: "<<wx<<" 0 winning chances: "<<w0<<" draw chances: "<<d<<endl;
+
+
+}
 
 int main()
 {
     
     build_graph();
+
+    while(1)
+    {
+        string s;
+        cin>>s;
+        check_outcome(s);
+    }
     
     return 0;
     
