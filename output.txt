@@ -7,10 +7,14 @@ Recursion count: 11100
  post computation states set size is: 11100
  edges size is: 13114
 the map size after mapping of states with id is: 11103
-graph vector has been initialized with size: 11101
+graph vector has been initialized with outer size: 11104
 
-note: 0 is an error.
+number of edges are: 13114
+0 is an error.
 edges in a mapped manner: 
 
- printing has been suspended temporarilynodes have been built
-the total size(number of edges) of the graph is: 13088
+ printing has been suspended temporarily
+13114 traversals of edges have occured
+nodes have been built
+the total size(number of edges) of the graph is: 13114
+analysis: x: 992 0: 992 draw: 32
