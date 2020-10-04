@@ -2,7 +2,7 @@
 #include <set>
 using namespace std;
 
-set<string> states;
+set<pair<string,int> > states;
 int rec_count=0;
 void print_state(string s)
 {
@@ -59,11 +59,11 @@ void recursive_add_states(string state,bool turn)
                     {
                         temp=state;
                         temp[i]='x';
-                        //if(states.find(temp)==states.end())
-                        //{
-                            states.insert(temp);
+                        if(states.find(pair<string,int>(temp,turn))==states.end())
+                        {
+                            states.insert(pair<string,int>(temp,turn));
                             recursive_add_states(temp,!turn);
-                        //}
+                        }
                     }
         }
         else
@@ -73,8 +73,11 @@ void recursive_add_states(string state,bool turn)
                     {
                         temp=state;
                         temp[i]='0';
-                        states.insert(temp);
-                        recursive_add_states(temp,!turn);
+                        if(states.find(pair<string,int>(temp,turn))==states.end())
+                        {
+                            states.insert(pair<string,int>(temp,turn));
+                            recursive_add_states(temp,!turn);
+                        }
                     }
         }
     }
@@ -88,8 +91,8 @@ int main()
     recursive_add_states(start,0);
     cout<<"Recursion count: "<<rec_count<<endl;
     cout<<"\n\n\n\n post computation states size is: "<<states.size()<<endl;
-    for(set<string>::iterator i=states.begin();i!=states.end();++i)
-        cout<<*i<<" "<<game_status(*i)<<endl;
+    for(set<pair<string,int> >::iterator i=states.begin();i!=states.end();++i)
+        cout<<(*i).first<<" "<<(*i).second<<"   "<<game_status((*i).first)<<endl;
     return 0;
 
 }
