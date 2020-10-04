@@ -1,20 +1,25 @@
+//header files
 #include <iostream>
 #include <set>
 #include <vector>
 #include <map>
+
 using namespace std;
 
-set<string> states;
-vector<string> valid_states;
-vector<vector<int> > move;
-set<pair<string,string> > edges;
+set<string> states; // all possible states along with the turn appended.
+//vector<string> valid_states;
+//vector<vector<int> > move;
+set<pair<string,string> > edges; //store all possible edges
 map<string,int> m;
+vector<vector<int> > graph; 
 int rec_count=0;
 
-void print_state(string s)
+// printing of state
+void print_state(string s) 
 {
 
 /*
+Example of printout of the matrix: 
     |   |
   x | x | x
 -------------
@@ -35,6 +40,7 @@ cout<<"    |   |"<<endl;
 cout<<"  "<<s[6]<<" | "<<s[7]<<" | "<<s[8]<<endl;
 }
 
+// evaluation of state if Won by X or 0 or gameplay pending, i.e ~ or draw
 char game_status(string s)
 {
     for(int i=0;i<=6;i+=3) // row wise
@@ -51,86 +57,178 @@ char game_status(string s)
     return 'd'; //  game is a draw
 }
 
-void recursive_add_states(string state,bool turn)
+void initialize_graph()
 {
-    //cout<<"\n we are at state: \n";
-    //print_state(state);
-    rec_count++;
-    char c=game_status(state);
-    if(c=='~')
-    {
-        string temp;
-        if(turn)
-        {
-            for(int i=0;i<9;i++)
-                if(state[i]=='~')
-                    {
-                        temp=state;
-                        temp[i]='x';
-                        temp+="1";
-                        if(states.find(temp)==states.end())
-                        {
-                            states.insert(temp);
-                            edges.insert(pair<string,string>(state,temp));
-                            recursive_add_states(temp,!turn);
-                        }
-                    }
-        }
-        else
-        {
-            for(int i=0;i<9;i++)
-                if(state[i]=='~')
-                    {
-                        temp=state;
-                        temp[i]='0';
-                        temp+="0";
-                        if(states.find(temp)==states.end())
-                        {
-                            states.insert(temp);
-                            edges.insert(pair<string,string>(state,temp));
-                            recursive_add_states(temp,!turn);
-                        }
-                    }
-        }
-    }
-    else
-        {
-            string oc="0";
-            oc[0]=c;
-            edges.insert(pair<string,string>(state,oc));
-        }
-    
+    int n=m.size();
+    vector<int> x;
+    //graph.insert(graph.end(),n+1,x);
+    for(int i=0;i<=n;i++)
+        graph.push_back(x);
+    cout<<"graph vector has been initialized with outer size: "<<graph.size()<<endl;
 }
 
-int main()
+//printing every edge by new format. 0 if anywhere is an error
+void print_edges_mapped()
 {
-    string start="~~~~~~~~~";
-    
+    initialize_graph();
+    int count=0;
+    cout<<"\nnumber of edges are: "<<edges.size()<<"\n0 is an error.\nedges in a mapped manner: "<<endl;
+    cout<<"\n printing has been suspended temporarily\n";
+    for(set<pair<string,string> >::iterator i=edges.begin();i!=edges.end();i++)
+        {
+            //cout<<m.find((*i).first)->second<<"   ->   "<<m.find((*i).second)->second<<endl;
+            graph[m.find((*i).first)->second].push_back(m.find((*i).second)->second);
+            if(m.find((*i).first)==m.end())//||m.find((*i).second)==m.end())
+                cout<<"there is an error 1"<<endl;
+            if(m.find((*i).second)==m.end())//||m.find((*i).second)==m.end())
+                cout<<"there is an error 2"<<endl;
+            
+            count++;
+        }
+    cout<<count<<" traversals of edges have occured"<<endl;
+}
+
+// mapping every outcome state to a number
+void map_initialize_with_outcomes()
+{
     m.insert(pair<string,int>("x",1));
     m.insert(pair<string,int>("0",2));
     m.insert(pair<string,int>("d",3));
-    
-    recursive_add_states(start,1);
-    recursive_add_states(start,0);
-    cout<<"Recursion count: "<<rec_count<<endl;
-    cout<<"\n\n\n\n post computation states set size is: "<<states.size()<<endl;
-    cout<<" edges size is: "<<edges.size()<<endl;
+    cout<<"map initiliazed with outcomes"<<endl;
+    // we assume 0 will be an error so we don't explicitly assign it to anything
+}
+
+// map each state in States to a specific integer value starting from 4
+void map_states()
+{
     int j=4;
-    
-    //m.insert(pair<string,int>("~",3));
-    
     for(set<string>::iterator i=states.begin();i!=states.end();++i,j++)
         {
             //cout<<(*i).substr(0,9)<<" "<<(*i)[9]<<"    "<<game_status(*i)<<endl;
             //valid_states.push_back(*i);
             m.insert(pair<string,int>(*i,j));
         }
+    
+    cout<<"the map size after mapping of states with id is: "<<m.size()<<endl;
+
+    print_edges_mapped();
+    
+}
+
+// recursive traversal of all states
+void recursive_add_states(string state)
+{
+    //cout<<"\n we are at state: \n";
+    //print_state(state);
+    rec_count++; // to keep a track of number of recursive calls made
+    char c=game_status(state); // only first 9 characters are cared about
+
+    states.insert(state);
+    if(c=='~') //if turns are left
+    {
+        string temp;
+        if(state[11]=='x') // x's turn
+        {
+            for(int i=0;i<9;i++)
+                if(state[i]=='~')
+                    {
+                        temp=state;
+                        temp[i]='x';
+                        temp[11]='0'; // opposite turn
+                        if(states.find(temp)==states.end()) // this state with turn hasn't been encountered before
+                        {
+                            //states.insert(temp);
+                            recursive_add_states(temp);
+                            edges.insert(pair<string,string>(state,temp));
+                        }
+                    }
+        }
+        else // 0's turn
+        {
+            for(int i=0;i<9;i++)
+                if(state[i]=='~')
+                    {
+                        temp=state;
+                        temp[i]='0';
+                        temp[11]='x'; // opposite turn
+                        if(states.find(temp)==states.end()) // this state with turn hasn't been encountered before
+                        {
+                            //states.insert(temp);
+                            recursive_add_states(temp);
+                            edges.insert(pair<string,string>(state,temp));
+                        }
+                    }
+        }
+    }
+    else // no more turns left
+        {
+            string oc="0";
+            oc[0]=c; // winner or loser or draw
+            edges.insert(pair<string,string>(state,oc));
+        }
+    
+}
+
+// build all the nodes and complete relevant simplifying
+void build_nodes()
+{
+    map_initialize_with_outcomes();
+
+    string start="~~~~~~~~~";
+    recursive_add_states(start+"|x"); // x starts first
+    recursive_add_states(start+"|0"); // 0 starts first
+
+    cout<<"Recursion count: "<<rec_count<<endl;
+    cout<<"\n\n\n\n post computation states set size is: "<<states.size()<<endl;
+    cout<<" edges size is: "<<edges.size()<<endl;
+
+    map_states();
+    cout<<"nodes have been built"<<endl;
+}
+
+// return the corresponding node index details from a string
+int node_index(string state)
+{
+    return m.find(state)->second;
+}
+
+void check_graph_size()
+{
+    int total=0;
+    for(int i=0;i<graph.size();i++)
+        total+=graph[i].size();
+    cout<<"the total size(number of edges) of the graph is: "<<total<<endl;
+}
+
+void build_graph()
+{
+    
+    build_nodes();
+    
+    check_graph_size();
+}
+
+
+int main()
+{
+    
+    build_graph();
+    
+    return 0;
+    
+    int j=4;
+    
+    //m.insert(pair<string,int>("~",3));
+
     for(set<pair<string,string> >::iterator it=edges.begin();it!=edges.end();it++)
         {
             cout<<(*it).first.substr(0,9)<<"|"<<(*it).first[9]<<"    ->     "<<(*it).second.substr(0,9)<<"|"<<(*it).second[9]<<endl;
             cout<<m.find((*it).first)->second<<"    ->     "<<m.find((*it).second)->second<<endl;
         }
-    cout<<"\n valid states size is: "<<valid_states.size()<<endl;
+    //cout<<"\n valid states size is: "<<valid_states.size()<<endl;
+    
+    
+    
     return 0;
 
 }
