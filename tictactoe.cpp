@@ -44,6 +44,7 @@ cout<<"  "<<s[6]<<" | "<<s[7]<<" | "<<s[8]<<endl;
 // evaluation of state if Won by X or 0 or gameplay pending, i.e ~ or draw
 char game_status(string s)
 {
+    
     for(int i=0;i<=6;i+=3) // row wise
         if(s[i]==s[i+1]&&s[i+1]==s[i+2])
             return s[i];
@@ -55,6 +56,7 @@ char game_status(string s)
     for(int i=0;i<9;i++) // any move left
         if(s[i]=='~')
             return '~';
+    
     return 'd'; //  game is a draw
 }
 
@@ -123,19 +125,18 @@ void recursive_add_states(string state)
     //print_state(state);
     rec_count++; // to keep a track of number of recursive calls made
     char c=game_status(state); // only first 9 characters are cared about
-
     states.insert(state);
     if(c=='~') //if turns are left
     {
         string temp;
-        if(state[11]=='x') // x's turn
+        if(state[10]=='x') // x's turn
         {
             for(int i=0;i<9;i++)
                 if(state[i]=='~')
                     {
                         temp=state;
                         temp[i]='x';
-                        temp[11]='0'; // opposite turn
+                        temp[10]='0'; // opposite turn
                         if(states.find(temp)==states.end()) // this state with turn hasn't been encountered before
                         {
                             //states.insert(temp);
@@ -151,7 +152,7 @@ void recursive_add_states(string state)
                     {
                         temp=state;
                         temp[i]='0';
-                        temp[11]='x'; // opposite turn
+                        temp[10]='x'; // opposite turn
                         if(states.find(temp)==states.end()) // this state with turn hasn't been encountered before
                         {
                             //states.insert(temp);
@@ -176,8 +177,9 @@ void build_nodes()
     map_initialize_with_outcomes();
 
     string start="~~~~~~~~~";
-    recursive_add_states(start+"|x"); // x starts first
+    
     recursive_add_states(start+"|0"); // 0 starts first
+    recursive_add_states(start+"|x"); // x starts first
 
     cout<<"Recursion count: "<<rec_count<<endl;
     cout<<"\n\n\n\n post computation states set size is: "<<states.size()<<endl;
@@ -240,33 +242,46 @@ void check_outcome(string start_state)
 
 }
 
-int main()
+// trying out the program
+void trial()
 {
-    
-    build_graph();
-
-    while(1)
+    int t;
+    cout<<"enter the number of test cases: ";
+    cin>>t;
+    while(t--)
     {
         string s;
         cin>>s;
         check_outcome(s);
     }
-    
-    return 0;
-    
-    int j=4;
-    
-    //m.insert(pair<string,int>("~",3));
+}
 
-    for(set<pair<string,string> >::iterator it=edges.begin();it!=edges.end();it++)
+// for debugging purposes
+void analyze_edges()
+{
+    cout<<"analysis: ";
+    int cx=0,c0=0,cd=0;
+    int val;
+    for(set<pair<string,string> >::iterator i=edges.begin();i!=edges.end();i++)
         {
-            cout<<(*it).first.substr(0,9)<<"|"<<(*it).first[9]<<"    ->     "<<(*it).second.substr(0,9)<<"|"<<(*it).second[9]<<endl;
-            cout<<m.find((*it).first)->second<<"    ->     "<<m.find((*it).second)->second<<endl;
+            //cout<<m.find((*i).first)->second<<"   ->   "<<m.find((*i).second)->second<<endl;
+            val=m.find((*i).second)->second;
+            if(val==1)
+                cx++;
+            else if(val==2)
+                c0++;
+            else if(val==3)
+                cd++;
+            else
+                continue;
         }
-    //cout<<"\n valid states size is: "<<valid_states.size()<<endl;
+    cout<<"x: "<<cx<<" 0: "<<c0<<" draw: "<<cd<<endl;
+}
+int main()
+{
     
-    
-    
+    build_graph();
+    analyze_edges();
     return 0;
 
 }
